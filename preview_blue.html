@@ -1,0 +1,1097 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>Мой недельный срез · Оми (превью)</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+  :root{--card:#fff;--ink:#20304d;--muted:#6b7a94;--good:#1f7a52;--bad:#c23a58;--neu:#7a8699;--shadow:0 8px 22px rgba(60,90,150,.12)}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:linear-gradient(180deg,#F0F3FA 0%,#DCE6F5 100%);color:var(--ink);
+    padding:14px 14px 40px;max-width:520px;margin:0 auto}
+  h1{font-size:20px;margin:2px 0;font-weight:700}
+  .sub{color:var(--muted);font-size:13px;margin-bottom:14px}
+  .weekbar{display:flex;align-items:center;justify-content:space-between;background:var(--card);border-radius:18px;padding:10px 12px;box-shadow:var(--shadow);margin-bottom:14px}
+  .weekbar .nav{width:38px;height:38px;border:none;border-radius:12px;background:#E1E9F6;color:#395886;font-size:20px;font-weight:700;display:flex;align-items:center;justify-content:center;cursor:pointer}
+  .weekbar .nav:disabled{opacity:.35;cursor:default}
+  .weekbar .center b{font-size:15px}
+  .weekbar .center{text-align:center;line-height:1.2}
+  .weekbar .center span{display:block;color:var(--muted);font-size:12px}
+  .refresh{width:100%;border:none;border-radius:14px;padding:12px;margin-bottom:16px;cursor:pointer;background:linear-gradient(90deg,#638ECB,#8AAEE0);color:#fff;font-size:14px;font-weight:600;box-shadow:var(--shadow)}
+  .tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+  .tile{border-radius:18px;padding:14px;color:#1f3557;box-shadow:var(--shadow)}
+  .tile .t-label{font-size:12px;color:#3a537d;font-weight:500}
+  .tile .t-val{font-size:23px;font-weight:700;margin-top:4px;color:#183055}
+  .tile .t-delta{font-size:11.5px;margin-top:3px;color:#274063;font-weight:600}
+  .t-purple{background:#B1C9EF}.t-teal{background:#C9D8F0}.t-blue{background:#D5DEEF}.t-pink{background:#E3EBF7}
+  .card{background:var(--card);border-radius:20px;padding:16px;box-shadow:var(--shadow);margin-bottom:14px}
+  .card h2{font-size:16px;margin:0 0 10px;display:flex;align-items:center;gap:8px}
+  .big{font-size:28px;font-weight:700}
+  .row{display:flex;align-items:center;justify-content:space-between;margin:6px 0;font-size:14px}
+  .muted{color:var(--muted)}
+  .coach{background:#EAF1FB;border-radius:14px;padding:11px 13px;margin-top:12px;font-size:13px;line-height:1.5;color:#2c3d5c}
+  .coach b{color:#395886}
+  .hof{list-style:none;padding:0;margin:8px 0 0}
+  .hof li{background:#EAF1FB;border-radius:12px;padding:9px 12px;margin-bottom:7px;font-size:13.5px;display:flex;gap:8px;align-items:center}
+  .donut-wrap{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  .donut{width:132px;height:132px;border-radius:50%;flex:0 0 auto;position:relative}
+  .donut::after{content:"";position:absolute;inset:20px;background:var(--card);border-radius:50%}
+  .donut .center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:2}
+  .donut .center b{font-size:20px}.donut .center span{font-size:10px;color:var(--muted)}
+  .legend{flex:1;min-width:150px}
+  .legend .li{display:flex;align-items:center;gap:7px;font-size:12.5px;margin:3px 0}
+  .legend .dot{width:10px;height:10px;border-radius:3px;flex:0 0 auto}
+  .legend .cnt{margin-left:auto;font-weight:600;color:var(--muted)}
+  .other-tag{margin-top:10px;font-size:12.5px;color:var(--muted)}
+  .bar{margin:9px 0}
+  .bar .lbl{display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px}
+  .bar .track{height:9px;background:#DCE6F5;border-radius:6px;overflow:hidden}
+  .bar .fill{height:100%;border-radius:6px;background:linear-gradient(90deg,#638ECB,#8AAEE0)}
+  .bar.zero .lbl b{color:var(--bad)}
+  .flag{background:#FBE9EC;color:var(--bad);border-radius:10px;padding:8px 10px;font-size:12.5px;margin-top:8px}
+  .delta-up{color:var(--good);font-weight:700}
+  .delta-down{color:var(--bad);font-weight:700}
+  .charts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px}
+  .chartbox{background:#F1F5FC;border-radius:14px;padding:10px}
+  .chartbox .ctitle{font-size:12px;color:var(--muted);margin-bottom:4px}
+  .chartcap{font-size:11px;color:var(--muted);margin-top:6px;text-align:center}
+  svg{display:block;width:100%;height:auto}
+  .emo{margin:10px 0}
+  .emo .top{display:flex;justify-content:space-between;font-size:13.5px}
+  .emo .meta{font-size:12px;color:var(--muted);margin-top:2px}
+  .emo .int{height:7px;background:#E7ECF4;border-radius:4px;margin-top:5px;overflow:hidden}
+  .emo .int i{display:block;height:100%}
+  .emap{margin-top:12px;border-top:1px solid #E7ECF4;padding-top:10px}
+  .emap-t{font-size:12.5px;font-weight:600;margin-bottom:6px;color:#3a537d}
+  .emap-row{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:5px 0}
+  .emap-lbl{font-size:11px;color:var(--muted);min-width:82px}
+  .chip{font-size:12px;border-radius:20px;padding:3px 9px;white-space:nowrap}
+  .plinks{margin-bottom:10px}
+  .plink{display:flex;align-items:center;gap:6px;font-size:12.5px;padding:7px 10px;border-radius:10px;margin-bottom:6px;background:#F1F5FC}
+  .plink.pos{border-left:3px solid var(--good)}
+  .plink.neg{border-left:3px solid var(--bad)}
+  .plink .parrow{color:var(--muted)}
+  .plink .pe{color:#3a4c6b}
+  .pat{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .pat .col{background:#F1F5FC;border-radius:14px;padding:10px}
+  .pat .col h4{margin:0 0 6px;font-size:13px}
+  .pat .col.pos h4{color:var(--good)}.pat .col.neg h4{color:var(--bad)}
+  .pat .col div{font-size:12.5px;margin:3px 0;color:#33445f}
+  .pat .col .c{color:var(--muted)}
+  .step{background:#E8F3EE;border-radius:14px;padding:12px;margin-top:10px;font-size:13.5px;line-height:1.5}
+  .step b{display:block;margin-bottom:3px;color:var(--good)}
+  .stub{background:var(--card);border-radius:20px;padding:30px 20px;text-align:center;box-shadow:var(--shadow)}
+  .stub .e{font-size:34px}.stub p{color:var(--muted);font-size:14px}
+</style>
+</head>
+<body>
+  <h1>Мой недельный срез</h1>
+  <div class="sub">Итоги недели с Оми 🤍 <b>(превью с примерами)</b></div>
+  <div class="weekbar">
+    <button class="nav" id="prev">‹</button>
+    <div class="center"><b id="wk-range">—</b><span id="wk-id"></span></div>
+    <button class="nav" id="next">›</button>
+  </div>
+  <button class="refresh" id="refresh">🔄 Обновить данные</button>
+  <div id="app"></div>
+<script>
+  var SPHERE_COLORS={"Работа":"#7fb3f0","Своё дело":"#b9a3e3","Авторство":"#f4a6c0","Отдых/заземление":"#6fd6c8","Отношения":"#f6a6a6","Здоровье":"#a9e5a0","Яркость":"#ffd98a","Саморазвитие":"#cbb8f4"};
+  var weeks=[],idx=0;
+  function esc(s){return (s==null?'':String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;');}
+  function delta(cur,prev,dp){var d=cur-prev;if(Math.abs(d)<1e-9)return '<span class="muted">без изменений</span>';var up=d>0;return '<span class="'+(up?'delta-up':'delta-down')+'">'+(up?'↑ +':'↓ ')+(dp!=null?Math.abs(d).toFixed(dp):Math.abs(d))+'</span>';}
+  function vcol(v){return v==='pos'?'#1f7a52':v==='neg'?'#c23a58':'#7a8699';}
+  function vbg(v){return v==='pos'?'#E6F3EC':v==='neg'?'#FBE9EC':'#EDEFF3';}
+  function chart(vals){
+    var w=150,h=64,pad=9,mn=0,mx=10,mid=5,n=vals.length;
+    function X(i){return pad+(w-2*pad)*(i/(n-1));}
+    function Y(v){return h-pad-(h-2*pad)*((v-mn)/(mx-mn));}
+    var ym=Y(mid).toFixed(1);
+    var s='<svg viewBox="0 0 '+w+' '+h+'">';
+    s+='<line x1="'+pad+'" y1="'+ym+'" x2="'+(w-pad)+'" y2="'+ym+'" stroke="#c2cfe4" stroke-width="1" stroke-dasharray="3 3"/>';
+    s+='<text x="0" y="'+(Y(mid)-2).toFixed(1)+'" font-size="7" fill="#9aa6bd">5</text>';
+    for(var i=0;i<n-1;i++){
+      var xa=X(i),ya=vals[i],xb=X(i+1),yb=vals[i+1],pts=[[xa,ya]];
+      if((ya-mid)*(yb-mid)<0){var t=(mid-ya)/(yb-ya);pts.push([xa+(xb-xa)*t,mid]);}
+      pts.push([xb,yb]);
+      for(var j=0;j<pts.length-1;j++){var a=pts[j],b=pts[j+1];var above=((a[1]+b[1])/2)>=mid;
+        s+='<line x1="'+a[0].toFixed(1)+'" y1="'+Y(a[1]).toFixed(1)+'" x2="'+b[0].toFixed(1)+'" y2="'+Y(b[1]).toFixed(1)+'" stroke="'+(above?'#1f7a52':'#c23a58')+'" stroke-width="2.6" stroke-linecap="round"/>';}
+    }
+    for(var k=0;k<n;k++){var v=vals[k];s+='<circle cx="'+X(k).toFixed(1)+'" cy="'+Y(v).toFixed(1)+'" r="2.5" fill="'+(v>=mid?'#1f7a52':'#c23a58')+'"/>';}
+    return s+'</svg>';
+  }
+  function donut(sp){var total=sp.reduce(function(s,x){return s+x.count;},0)||1,acc=0,segs=[];
+    sp.forEach(function(s){var f=s.count/total,a=acc*360,b=(acc+f)*360;acc+=f;if(s.count>0)segs.push((SPHERE_COLORS[s.name]||'#ccc')+' '+a.toFixed(1)+'deg '+b.toFixed(1)+'deg');});
+    if(!segs.length)segs.push('#eee 0deg 360deg');return 'background:conic-gradient('+segs.join(',')+')';}
+
+  function render(){
+    var wk=weeks[idx];
+    document.getElementById('wk-range').textContent=wk.range;
+    document.getElementById('wk-id').textContent='Неделя '+wk.id.split('-W')[1];
+    document.getElementById('prev').disabled=(idx===0);
+    document.getElementById('next').disabled=(idx===weeks.length-1);
+    var p=wk.pobedy,wh=wk.wheel,c=wk.compass,st=wk.state,em=wk.emotions,pt=wk.patterns,cn=wk.conclusion,H='';
+
+    H+='<div class="tiles">'
+      +'<div class="tile t-purple"><div class="t-label">🧭 Фокус на цель</div><div class="t-val">'+c.focus+'%</div><div class="t-delta">'+delta(c.focus,c.focus_prev,0)+' к прошлой</div></div>'
+      +'<div class="tile t-teal"><div class="t-label">🏆 Задач за неделю</div><div class="t-val">'+p.total+'</div><div class="t-delta">'+esc(p.tempo)+'</div></div>'
+      +'<div class="tile t-blue"><div class="t-label">🌡️ Настроение</div><div class="t-val">'+st.mood.toFixed(1)+'</div><div class="t-delta">'+delta(st.mood,st.mood_prev,1)+' · шкала 0–10</div></div>'
+      +'<div class="tile t-pink"><div class="t-label">🔋 Энергия</div><div class="t-val">'+st.energy.toFixed(1)+'/10</div><div class="t-delta">'+delta(st.energy,st.energy_prev,1)+'</div></div>'
+      +'</div>';
+
+    var hof=p.hall_of_fame.map(function(x){return '<li>⭐ '+esc(x)+'</li>';}).join('');
+    H+='<div class="card"><h2>🏆 Победы недели</h2><div class="row"><span class="muted">Выполнено задач</span><span class="big">'+p.total+'</span></div>'
+      +'<div class="muted" style="font-size:13px">Темп: '+esc(p.tempo)+'</div>'
+      +'<div style="font-size:13px;font-weight:600;margin-top:10px">Зал славы недели</div><ul class="hof">'+hof+'</ul>'
+      +'<div class="coach">🧠 '+esc(p.coach)+'</div></div>';
+
+    var legend=wh.spheres.map(function(s){return '<div class="li"><span class="dot" style="background:'+(SPHERE_COLORS[s.name]||'#ccc')+'"></span>'+s.emoji+' '+esc(s.name)+'<span class="cnt">'+s.count+'</span></div>';}).join('');
+    var other=wh.other.map(function(o){return esc(o.name)+' — '+o.count;}).join(' · ');
+    var wtot=wh.spheres.reduce(function(s,x){return s+x.count;},0);
+    H+='<div class="card"><h2>⚖️ Колесо баланса</h2><div class="donut-wrap"><div class="donut" style="'+donut(wh.spheres)+'"><div class="center"><b>'+wtot+'</b><span>задач</span></div></div><div class="legend">'+legend+'</div></div>'
+      +'<div class="other-tag">◼️ Всё остальное: '+other+'</div><div class="coach">🧠 '+esc(wh.coach)+'</div></div>';
+
+    var ms=Math.max.apply(null,c.directions.map(function(d){return d.score;}).concat([1]));
+    var bars=c.directions.map(function(d){var z=d.score===0;return '<div class="bar'+(z?' zero':'')+'"><div class="lbl"><span>'+d.emoji+' '+esc(d.name)+'</span><b>'+d.score+(z?' ⚠️':'')+'</b></div><div class="track"><div class="fill" style="width:'+(z?3:Math.round(d.score/ms*100))+'%"></div></div></div>';}).join('');
+    H+='<div class="card"><h2>🧭 Компас: цели и саботаж</h2><div class="row"><span class="muted">Фокус на 4 направления</span><span><b class="big">'+c.focus+'%</b> &nbsp;'+delta(c.focus,c.focus_prev,0)+'</span></div>'+bars
+      +'<div class="flag">🌀 Ловушка занятости: '+c.avoidance_days+' дн. → '+esc(c.avoidance_where)+'</div><div class="coach">🧠 '+esc(c.coach)+'</div></div>';
+
+    H+='<div class="card"><h2>🌡️ Состояние</h2>'
+      +'<div class="row"><span class="muted">Настроение (ср.)</span><span><b>'+st.mood.toFixed(1)+' / 10</b> '+delta(st.mood,st.mood_prev,1)+'</span></div>'
+      +'<div class="row"><span class="muted">Энергия (ср.)</span><span><b>'+st.energy.toFixed(1)+' / 10</b> '+delta(st.energy,st.energy_prev,1)+'</span></div>'
+      +'<div class="row"><span class="muted">Дней восстановления</span><b>'+st.recovery_days+' / 7</b></div>'
+      +'<div class="charts"><div class="chartbox"><div class="ctitle">Настроение · 7 дней</div>'+chart(st.mood_curve)+'</div><div class="chartbox"><div class="ctitle">Энергия · 7 дней</div>'+chart(st.energy_curve)+'</div></div>'
+      +'<div class="coach">🧠 '+esc(st.coach)+'</div></div>';
+
+    var tops=em.top.map(function(e){return '<div class="emo"><div class="top"><b>'+esc(e.name)+'</b><span class="muted">×'+e.count+' · сила '+e.intensity+'/5</span></div><div class="meta">'+esc(e.trigger)+' · '+esc(e.body)+'</div><div class="int"><i style="width:'+(e.intensity/5*100)+'%;background:'+vcol(e.valence)+'"></i></div></div>';}).join('');
+    var groups=[['pos','Позитивные'],['neu','Нейтральные'],['neg','Негативные']];
+    var emap=groups.map(function(g){var list=em.all.filter(function(x){return x.valence===g[0];});if(!list.length)return '';var chips=list.map(function(x){return '<span class="chip" style="background:'+vbg(x.valence)+';color:'+vcol(x.valence)+'">'+esc(x.name)+' ·'+x.count+'</span>';}).join('');return '<div class="emap-row"><span class="emap-lbl">'+g[1]+'</span>'+chips+'</div>';}).join('');
+    H+='<div class="card"><h2>💗 Эмоции недели</h2>'+tops+'<div class="emap"><div class="emap-t">Карта всех эмоций недели</div>'+emap+'</div><div class="coach">🧠 '+esc(em.coach)+'</div></div>';
+
+    var plinks=(pt.links||[]).map(function(l){return '<div class="plink '+esc(l.dir)+'"><span class="pc">'+esc(l.cause)+'</span><span class="parrow">→</span><span class="pe">'+esc(l.effect)+'</span></div>';}).join('');
+    var ch=pt.charge.map(function(x){return '<div><span style="color:#1f7a52">▲</span> '+esc(x.name)+' <span class="c">×'+x.count+'</span></div>';}).join('');
+    var dr=pt.drain.map(function(x){return '<div><span style="color:#c23a58">▼</span> '+esc(x.name)+' <span class="c">×'+x.count+'</span></div>';}).join('');
+    H+='<div class="card"><h2>🔋 Паттерны</h2><div class="plinks">'+plinks+'</div><div class="pat"><div class="col pos"><h4>Заряжало</h4>'+ch+'</div><div class="col neg"><h4>Разряжало</h4>'+dr+'</div></div>'
+      +(pt.coach?'<div class="coach">🧠 '+esc(pt.coach)+'</div>':'')+'</div>';
+
+    H+='<div class="card"><h2>🌱 Вывод и шаг</h2><div style="font-size:14px;line-height:1.5">'+esc(cn.text)+'</div><div class="step"><b>Шаг на следующую неделю</b>'+esc(cn.step)+'</div></div>';
+
+    document.getElementById('app').innerHTML=H;window.scrollTo(0,0);
+  }
+  function stub(m){document.getElementById('app').innerHTML='<div class="stub"><div class="e">🌙</div><p>'+esc(m||'Данные не загрузились')+'<br>Нажми «Обновить данные» через пару секунд.</p></div>';}
+  var DATA={
+  "weeks": [
+    {
+      "id": "2026-W26",
+      "range": "22–28 июня",
+      "pobedy": {
+        "total": 33,
+        "tempo": "неровный, с перегрузом в среду",
+        "hall_of_fame": [
+          "Начала набросок новой главы",
+          "Вернулась к спорту после паузы"
+        ],
+        "coach": "Неделя была рваной: много мелких дел, мало крупных вех. Ты больше держалась на плаву, чем двигалась."
+      },
+      "wheel": {
+        "spheres": [
+          {
+            "name": "Работа",
+            "emoji": "💼",
+            "count": 8
+          },
+          {
+            "name": "Своё дело",
+            "emoji": "🚀",
+            "count": 1
+          },
+          {
+            "name": "Авторство",
+            "emoji": "✍️",
+            "count": 2
+          },
+          {
+            "name": "Отдых/заземление",
+            "emoji": "🧘",
+            "count": 1
+          },
+          {
+            "name": "Отношения",
+            "emoji": "❤️",
+            "count": 0
+          },
+          {
+            "name": "Здоровье",
+            "emoji": "🥦",
+            "count": 2
+          },
+          {
+            "name": "Яркость",
+            "emoji": "✨",
+            "count": 0
+          },
+          {
+            "name": "Саморазвитие",
+            "emoji": "🌱",
+            "count": 4
+          }
+        ],
+        "other": [
+          {
+            "name": "Быт",
+            "count": 5
+          }
+        ],
+        "coach": "Сильный перекос в работу и быт. Пять из восьми сфер почти пусты — жизнь сузилась к рутине."
+      },
+      "compass": {
+        "focus": 18,
+        "focus_prev": 20,
+        "directions": [
+          {
+            "name": "Авторство",
+            "emoji": "✍️",
+            "score": 2
+          },
+          {
+            "name": "Своё дело",
+            "emoji": "🚀",
+            "score": 1
+          },
+          {
+            "name": "Путешествия",
+            "emoji": "✈️",
+            "score": 0
+          },
+          {
+            "name": "Отношения",
+            "emoji": "❤️",
+            "score": 0
+          }
+        ],
+        "avoidance_days": 4,
+        "avoidance_where": "быт и уборка",
+        "coach": "Честно: 4 дня из 7 — уход в быт вместо главного. Отношения и путешествия по нулям. Это неделя избегания."
+      },
+      "state": {
+        "mood": 4.3,
+        "mood_prev": 4.4,
+        "energy": 4.6,
+        "energy_prev": 4.7,
+        "recovery_days": 1,
+        "mood_curve": [
+          4,
+          5,
+          3,
+          4,
+          5,
+          6,
+          4
+        ],
+        "energy_curve": [
+          4,
+          5,
+          3,
+          4,
+          5,
+          6,
+          5
+        ],
+        "coach": "Фон ниже нейтрали, энергия низкая. Всего 1 день отдыха — ты работала на остатках."
+      },
+      "emotions": {
+        "top": [
+          {
+            "name": "Тревога",
+            "count": 6,
+            "intensity": 4,
+            "trigger": "неопределённость с работой",
+            "body": "грудь",
+            "valence": "neg"
+          },
+          {
+            "name": "Усталость",
+            "count": 5,
+            "intensity": 4,
+            "trigger": "перегруз делами",
+            "body": "плечи",
+            "valence": "neg"
+          },
+          {
+            "name": "Апатия",
+            "count": 3,
+            "intensity": 3,
+            "trigger": "нет вектора",
+            "body": "тело тяжёлое",
+            "valence": "neg"
+          }
+        ],
+        "all": [
+          {
+            "name": "Тревога",
+            "count": 6,
+            "valence": "neg"
+          },
+          {
+            "name": "Усталость",
+            "count": 5,
+            "valence": "neg"
+          },
+          {
+            "name": "Апатия",
+            "count": 3,
+            "valence": "neg"
+          },
+          {
+            "name": "Раздражение",
+            "count": 2,
+            "valence": "neg"
+          },
+          {
+            "name": "Спокойствие",
+            "count": 2,
+            "valence": "pos"
+          },
+          {
+            "name": "Скука",
+            "count": 1,
+            "valence": "neu"
+          }
+        ],
+        "coach": "Неделя почти целиком в тяжёлых эмоциях. Корень один — нет ясности по направлению."
+      },
+      "patterns": {
+        "links": [
+          {
+            "cause": "спорт",
+            "effect": "настроение выше в дни тренировок",
+            "dir": "pos"
+          },
+          {
+            "cause": "бесконечная уборка",
+            "effect": "энергия уходит в ноль к вечеру",
+            "dir": "neg"
+          }
+        ],
+        "charge": [
+          {
+            "name": "спорт",
+            "count": 2
+          },
+          {
+            "name": "тишина утром",
+            "count": 2
+          }
+        ],
+        "drain": [
+          {
+            "name": "бесконечная уборка",
+            "count": 4
+          },
+          {
+            "name": "поздний интернет",
+            "count": 3
+          }
+        ],
+        "coach": "Причина-следствие видны ясно: уборка = разрядка, спорт = заряд. На неделе стоит уменьшить уборку и сохранить спорт."
+      },
+      "conclusion": {
+        "text": "Неделя выживания, а не движения. Ты много суетилась, но почти не подошла к важному.",
+        "step": "Сделай один маленький шаг в авторство: 20 минут письма, не отвлекаясь на быт."
+      }
+    },
+    {
+      "id": "2026-W27",
+      "range": "29 июня – 5 июля",
+      "pobedy": {
+        "total": 37,
+        "tempo": "ровнее, чем неделей раньше",
+        "hall_of_fame": [
+          "Дописала главу книги",
+          "Составила план запуска проекта",
+          "Сходила на 3 тренировки"
+        ],
+        "coach": "Уже лучше: появились настоящие вехи, а не только рутина. Темп выровнялся."
+      },
+      "wheel": {
+        "spheres": [
+          {
+            "name": "Работа",
+            "emoji": "💼",
+            "count": 7
+          },
+          {
+            "name": "Своё дело",
+            "emoji": "🚀",
+            "count": 2
+          },
+          {
+            "name": "Авторство",
+            "emoji": "✍️",
+            "count": 3
+          },
+          {
+            "name": "Отдых/заземление",
+            "emoji": "🧘",
+            "count": 2
+          },
+          {
+            "name": "Отношения",
+            "emoji": "❤️",
+            "count": 0
+          },
+          {
+            "name": "Здоровье",
+            "emoji": "🥦",
+            "count": 3
+          },
+          {
+            "name": "Яркость",
+            "emoji": "✨",
+            "count": 1
+          },
+          {
+            "name": "Саморазвитие",
+            "emoji": "🌱",
+            "count": 4
+          }
+        ],
+        "other": [
+          {
+            "name": "Быт",
+            "count": 4
+          }
+        ],
+        "coach": "Баланс чуть выровнялся, появились отдых и яркость. Но отношения — снова ноль."
+      },
+      "compass": {
+        "focus": 25,
+        "focus_prev": 18,
+        "directions": [
+          {
+            "name": "Авторство",
+            "emoji": "✍️",
+            "score": 3
+          },
+          {
+            "name": "Своё дело",
+            "emoji": "🚀",
+            "score": 2
+          },
+          {
+            "name": "Путешествия",
+            "emoji": "✈️",
+            "score": 1
+          },
+          {
+            "name": "Отношения",
+            "emoji": "❤️",
+            "score": 0
+          }
+        ],
+        "avoidance_days": 3,
+        "avoidance_where": "учёба",
+        "coach": "Фокус вырос с 18% до 25% — ты собираешься. Но избегание сместилось: теперь прячешься в учёбе."
+      },
+      "state": {
+        "mood": 4.9,
+        "mood_prev": 4.3,
+        "energy": 5.1,
+        "energy_prev": 4.6,
+        "recovery_days": 2,
+        "mood_curve": [
+          5,
+          4,
+          5,
+          4,
+          6,
+          5,
+          5
+        ],
+        "energy_curve": [
+          5,
+          5,
+          4,
+          5,
+          6,
+          5,
+          5
+        ],
+        "coach": "Настроение подтягивается к нейтрали, энергия подрастает — восстановление начало работать."
+      },
+      "emotions": {
+        "top": [
+          {
+            "name": "Тревога",
+            "count": 5,
+            "intensity": 4,
+            "trigger": "неопределённость с работой",
+            "body": "грудь",
+            "valence": "neg"
+          },
+          {
+            "name": "Радость",
+            "count": 3,
+            "intensity": 3,
+            "trigger": "дописала главу",
+            "body": "тепло в груди",
+            "valence": "pos"
+          },
+          {
+            "name": "Усталость",
+            "count": 4,
+            "intensity": 3,
+            "trigger": "длинные дни",
+            "body": "плечи",
+            "valence": "neg"
+          }
+        ],
+        "all": [
+          {
+            "name": "Тревога",
+            "count": 5,
+            "valence": "neg"
+          },
+          {
+            "name": "Усталость",
+            "count": 4,
+            "valence": "neg"
+          },
+          {
+            "name": "Радость",
+            "count": 3,
+            "valence": "pos"
+          },
+          {
+            "name": "Вдохновение",
+            "count": 2,
+            "valence": "pos"
+          },
+          {
+            "name": "Раздражение",
+            "count": 2,
+            "valence": "neg"
+          },
+          {
+            "name": "Спокойствие",
+            "count": 2,
+            "valence": "pos"
+          },
+          {
+            "name": "Удивление",
+            "count": 1,
+            "valence": "neu"
+          }
+        ],
+        "coach": "Появилась радость — от авторства. Тревога всё ещё лидирует, но уже не одна держит неделю."
+      },
+      "patterns": {
+        "links": [
+          {
+            "cause": "письмо по утрам",
+            "effect": "день ощущается осмысленным",
+            "dir": "pos"
+          },
+          {
+            "cause": "новости и лента",
+            "effect": "тревога растёт",
+            "dir": "neg"
+          }
+        ],
+        "charge": [
+          {
+            "name": "письмо",
+            "count": 3
+          },
+          {
+            "name": "прогулки",
+            "count": 3
+          }
+        ],
+        "drain": [
+          {
+            "name": "созвоны без цели",
+            "count": 2
+          },
+          {
+            "name": "новости",
+            "count": 3
+          }
+        ],
+        "coach": "Чёткая связка: письмо заряжает смыслом, новости кормят тревогу. Меньше ленты — спокойнее фон."
+      },
+      "conclusion": {
+        "text": "Ты сдвинулась с мёртвой точки: фокус и настроение растут, появились вехи.",
+        "step": "Закрепи письмо как ежедневный ритуал и сделай один шаг к отношениям."
+      }
+    },
+    {
+      "id": "2026-W28",
+      "range": "6–12 июля",
+      "pobedy": {
+        "total": 39,
+        "tempo": "ровный",
+        "hall_of_fame": [
+          "Дописала 2 главы книги",
+          "Запустила лендинг проекта",
+          "Сходила на нетворкинг"
+        ],
+        "coach": "Хорошая рабочая неделя: авторство и своё дело оба сдвинулись. Ты в потоке."
+      },
+      "wheel": {
+        "spheres": [
+          {
+            "name": "Работа",
+            "emoji": "💼",
+            "count": 6
+          },
+          {
+            "name": "Своё дело",
+            "emoji": "🚀",
+            "count": 3
+          },
+          {
+            "name": "Авторство",
+            "emoji": "✍️",
+            "count": 4
+          },
+          {
+            "name": "Отдых/заземление",
+            "emoji": "🧘",
+            "count": 2
+          },
+          {
+            "name": "Отношения",
+            "emoji": "❤️",
+            "count": 1
+          },
+          {
+            "name": "Здоровье",
+            "emoji": "🥦",
+            "count": 3
+          },
+          {
+            "name": "Яркость",
+            "emoji": "✨",
+            "count": 1
+          },
+          {
+            "name": "Саморазвитие",
+            "emoji": "🌱",
+            "count": 4
+          }
+        ],
+        "other": [
+          {
+            "name": "Быт",
+            "count": 3
+          }
+        ],
+        "coach": "Появились отношения (1) и яркость — жизнь чуть шире. Но перекос в работу и авторство остаётся."
+      },
+      "compass": {
+        "focus": 32,
+        "focus_prev": 25,
+        "directions": [
+          {
+            "name": "Авторство",
+            "emoji": "✍️",
+            "score": 4
+          },
+          {
+            "name": "Своё дело",
+            "emoji": "🚀",
+            "score": 3
+          },
+          {
+            "name": "Путешествия",
+            "emoji": "✈️",
+            "score": 1
+          },
+          {
+            "name": "Отношения",
+            "emoji": "❤️",
+            "score": 1
+          }
+        ],
+        "avoidance_days": 2,
+        "avoidance_where": "мелкие задачи по работе",
+        "coach": "Фокус 32% и впервые — не ноль по отношениям. Маленький, но живой шаг. Так держать."
+      },
+      "state": {
+        "mood": 5.6,
+        "mood_prev": 4.9,
+        "energy": 5.3,
+        "energy_prev": 5.1,
+        "recovery_days": 2,
+        "mood_curve": [
+          5,
+          6,
+          5,
+          4,
+          7,
+          6,
+          6
+        ],
+        "energy_curve": [
+          5,
+          6,
+          5,
+          5,
+          7,
+          6,
+          5
+        ],
+        "coach": "Настроение уверенно над нейтралью. Энергия ровная. Неделя мягкая и рабочая."
+      },
+      "emotions": {
+        "top": [
+          {
+            "name": "Радость",
+            "count": 5,
+            "intensity": 4,
+            "trigger": "запуск лендинга",
+            "body": "тепло в груди",
+            "valence": "pos"
+          },
+          {
+            "name": "Тревога",
+            "count": 4,
+            "intensity": 3,
+            "trigger": "нетворкинг",
+            "body": "живот",
+            "valence": "neg"
+          },
+          {
+            "name": "Вдохновение",
+            "count": 3,
+            "intensity": 4,
+            "trigger": "новые главы",
+            "body": "лёгкость",
+            "valence": "pos"
+          }
+        ],
+        "all": [
+          {
+            "name": "Радость",
+            "count": 5,
+            "valence": "pos"
+          },
+          {
+            "name": "Тревога",
+            "count": 4,
+            "valence": "neg"
+          },
+          {
+            "name": "Вдохновение",
+            "count": 3,
+            "valence": "pos"
+          },
+          {
+            "name": "Гордость",
+            "count": 2,
+            "valence": "pos"
+          },
+          {
+            "name": "Усталость",
+            "count": 2,
+            "valence": "neg"
+          },
+          {
+            "name": "Спокойствие",
+            "count": 2,
+            "valence": "pos"
+          },
+          {
+            "name": "Любопытство",
+            "count": 1,
+            "valence": "neu"
+          }
+        ],
+        "coach": "Впервые за месяц позитив перевесил. Радость — от результатов, тревога — только вокруг общения с людьми."
+      },
+      "patterns": {
+        "links": [
+          {
+            "cause": "видимый результат (лендинг, главы)",
+            "effect": "радость и подъём",
+            "dir": "pos"
+          },
+          {
+            "cause": "новые люди / нетворкинг",
+            "effect": "тревога перед и во время",
+            "dir": "neg"
+          }
+        ],
+        "charge": [
+          {
+            "name": "результат в проекте",
+            "count": 3
+          },
+          {
+            "name": "прогулки",
+            "count": 3
+          }
+        ],
+        "drain": [
+          {
+            "name": "общение с новыми людьми",
+            "count": 2
+          },
+          {
+            "name": "поздний отбой",
+            "count": 2
+          }
+        ],
+        "coach": "Тебя заряжает завершённое дело, а тревожит — новизна в общении. Это подсказка: к нетворкингу заходить малыми дозами."
+      },
+      "conclusion": {
+        "text": "Сильная, ровная неделя. Ты в потоке по делу, и даже коснулась отношений.",
+        "step": "Повтори один контакт по отношениям и добавь один день полноценного отдыха."
+      }
+    },
+    {
+      "id": "2026-W29",
+      "range": "13–19 июля",
+      "pobedy": {
+        "total": 41,
+        "tempo": "ровный, без перегруза",
+        "hall_of_fame": [
+          "Дописала 2 главы книги",
+          "Подала документы в аспирантуру",
+          "Провела первый созвон по своему проекту"
+        ],
+        "coach": "Сильная неделя по делу: два из четырёх главных направлений реально сдвинулись. Это настоящие вехи, а не занятость."
+      },
+      "wheel": {
+        "spheres": [
+          {
+            "name": "Работа",
+            "emoji": "💼",
+            "count": 6
+          },
+          {
+            "name": "Своё дело",
+            "emoji": "🚀",
+            "count": 2
+          },
+          {
+            "name": "Авторство",
+            "emoji": "✍️",
+            "count": 4
+          },
+          {
+            "name": "Отдых/заземление",
+            "emoji": "🧘",
+            "count": 2
+          },
+          {
+            "name": "Отношения",
+            "emoji": "❤️",
+            "count": 0
+          },
+          {
+            "name": "Здоровье",
+            "emoji": "🥦",
+            "count": 3
+          },
+          {
+            "name": "Яркость",
+            "emoji": "✨",
+            "count": 1
+          },
+          {
+            "name": "Саморазвитие",
+            "emoji": "🌱",
+            "count": 5
+          }
+        ],
+        "other": [
+          {
+            "name": "Быт",
+            "count": 3
+          }
+        ],
+        "coach": "Перекос в работу и саморазвитие. Отношения и яркость — почти пусто. Жизнь пока сужена к «полезному»."
+      },
+      "compass": {
+        "focus": 38,
+        "focus_prev": 32,
+        "directions": [
+          {
+            "name": "Авторство",
+            "emoji": "✍️",
+            "score": 4
+          },
+          {
+            "name": "Своё дело",
+            "emoji": "🚀",
+            "score": 2
+          },
+          {
+            "name": "Путешествия",
+            "emoji": "✈️",
+            "score": 1
+          },
+          {
+            "name": "Отношения",
+            "emoji": "❤️",
+            "score": 0
+          }
+        ],
+        "avoidance_days": 3,
+        "avoidance_where": "учёба",
+        "coach": "Честно и прямо: отношения снова ноль. Это зона, которую ты саботируешь 6 лет. Фокус вырос — молодец, — но ты обходишь то, по чему болит сильнее всего. На этой неделе — один крошечный шаг сюда."
+      },
+      "state": {
+        "mood": 6.4,
+        "mood_prev": 5.6,
+        "energy": 5.9,
+        "energy_prev": 5.3,
+        "recovery_days": 2,
+        "mood_curve": [
+          7,
+          7,
+          4,
+          7,
+          8,
+          6,
+          6
+        ],
+        "energy_curve": [
+          7,
+          7,
+          2,
+          6,
+          7,
+          6,
+          6
+        ],
+        "coach": "Настроение и энергия в целом подросли, но в среду был резкий провал — энергия падала до 2, настроение до 4. Один тяжёлый день просадил всю неделю; и всего 2 дня отдыха — восстановление ты по-прежнему недобираешь."
+      },
+      "emotions": {
+        "top": [
+          {
+            "name": "Тревога",
+            "count": 5,
+            "intensity": 4,
+            "trigger": "неопределённость с работой",
+            "body": "грудь",
+            "valence": "neg"
+          },
+          {
+            "name": "Радость",
+            "count": 4,
+            "intensity": 3,
+            "trigger": "дописала главу",
+            "body": "тепло в теле",
+            "valence": "pos"
+          },
+          {
+            "name": "Усталость",
+            "count": 4,
+            "intensity": 3,
+            "trigger": "длинный день",
+            "body": "плечи",
+            "valence": "neg"
+          }
+        ],
+        "all": [
+          {
+            "name": "Тревога",
+            "count": 5,
+            "valence": "neg"
+          },
+          {
+            "name": "Радость",
+            "count": 4,
+            "valence": "pos"
+          },
+          {
+            "name": "Усталость",
+            "count": 4,
+            "valence": "neg"
+          },
+          {
+            "name": "Вдохновение",
+            "count": 2,
+            "valence": "pos"
+          },
+          {
+            "name": "Раздражение",
+            "count": 2,
+            "valence": "neg"
+          },
+          {
+            "name": "Благодарность",
+            "count": 1,
+            "valence": "pos"
+          },
+          {
+            "name": "Спокойствие",
+            "count": 1,
+            "valence": "pos"
+          },
+          {
+            "name": "Скука",
+            "count": 1,
+            "valence": "neu"
+          }
+        ],
+        "coach": "Тревога всё ещё лидирует, и корень тот же — неясность с направлением. Как появится ясность по цели, тревога начнёт спадать."
+      },
+      "patterns": {
+        "links": [
+          {
+            "cause": "прогулки (4 дня)",
+            "effect": "настроение в среднем выше на 2",
+            "dir": "pos"
+          },
+          {
+            "cause": "созвоны без цели (3 дня)",
+            "effect": "энергия падает к вечеру",
+            "dir": "neg"
+          }
+        ],
+        "charge": [
+          {
+            "name": "прогулки",
+            "count": 4
+          },
+          {
+            "name": "письмо",
+            "count": 3
+          }
+        ],
+        "drain": [
+          {
+            "name": "созвоны без цели",
+            "count": 3
+          },
+          {
+            "name": "поздний интернет",
+            "count": 2
+          }
+        ],
+        "coach": "Связь очевидна: в дни с прогулкой настроение выше, а бесцельные созвоны стабильно сажают энергию. Вывод простой — больше прогулок, меньше пустых созвонов."
+      },
+      "conclusion": {
+        "text": "Ты выходишь из спада: настроение и фокус растут. Главный застой — отношения и отдых.",
+        "step": "Сделай один маленький шаг к отношениям (например, обнови анкету на сайте знакомств или напиши одному человеку) и оставь в расписании 3 прогулки, не отменяя их."
+      }
+    }
+  ]
+};
+  function load(){weeks=DATA.weeks;idx=weeks.length-1;render();}
+  document.getElementById('prev').onclick=function(){if(idx>0){idx--;render();}};
+  document.getElementById('next').onclick=function(){if(idx<weeks.length-1){idx++;render();}};
+  document.getElementById('refresh').onclick=load;
+  try{if(window.Telegram&&Telegram.WebApp){Telegram.WebApp.ready();Telegram.WebApp.expand();}}catch(e){}
+  load();
+</script>
+</body>
+</html>
