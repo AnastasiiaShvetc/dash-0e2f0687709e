@@ -53,6 +53,7 @@
   .bar .track{height:9px;background:#DCE6F5;border-radius:6px;overflow:hidden}
   .bar .fill{height:100%;border-radius:6px;background:linear-gradient(90deg,#638ECB,#8AAEE0)}
   .bar.zero .lbl b{color:var(--bad)}
+  .bar .items{font-size:12px;color:var(--muted);margin-top:4px}
   .flag{background:#FBE9EC;color:var(--bad);border-radius:10px;padding:8px 10px;font-size:12.5px;margin-top:8px}
   .delta-up{color:var(--good);font-weight:700}
   .delta-down{color:var(--bad);font-weight:700}
@@ -156,8 +157,9 @@
       +'<div class="other-tag">◼️ Всё остальное: '+other+'</div><div class="coach">🧠 '+esc(wh.coach)+'</div></div>';
 
     var DIR_SCALE=10; // абсолютная шкала: 10 дел = полный бар, не относительно других направлений (исправлено 2026-08-10 по просьбе Насти — раньше нормировали по max(directions), и 3 дела при отсутствии других красили бар на 100%)
-    var bars=c.directions.map(function(d){var z=d.score===0;return '<div class="bar'+(z?' zero':'')+'"><div class="lbl"><span>'+d.emoji+' '+esc(d.name)+'</span><b>'+d.score+(z?' ⚠️':'')+'</b></div><div class="track"><div class="fill" style="width:'+(z?3:Math.round(Math.min(d.score,DIR_SCALE)/DIR_SCALE*100))+'%"></div></div></div>';}).join('');
-    H+='<div class="card"><h2>🧭 Компас: цели и саботаж</h2><div class="row"><span class="muted">Фокус на 4 направления</span><span><b class="big">'+c.focus+'%</b> &nbsp;'+delta(c.focus,c.focus_prev,0)+'</span></div>'+bars
+    // с 2026-W42 (13.10) у направления есть pct (% от всех дел недели) и items (что сделано) — тогда бар = pct, под ним список дел; старые недели — по score на шкале DIR_SCALE
+    var bars=c.directions.map(function(d){var z=d.score===0,hasPct=typeof d.pct==='number';var val=hasPct?d.pct+'%':d.score;var w=z?3:(hasPct?Math.max(3,Math.min(d.pct,100)):Math.round(Math.min(d.score,DIR_SCALE)/DIR_SCALE*100));var it=(d.items&&d.items.length)?'<div class="items">'+d.items.map(esc).join(', ')+'</div>':'';return '<div class="bar'+(z?' zero':'')+'"><div class="lbl"><span>'+d.emoji+' '+esc(d.name)+'</span><b>'+val+(z?' ⚠️':'')+'</b></div><div class="track"><div class="fill" style="width:'+w+'%"></div></div>'+it+'</div>';}).join('');
+    H+='<div class="card"><h2>🧭 Компас: цели и саботаж</h2><div class="row"><span class="muted">Фокус на ядро ('+c.directions.length+' направлений)</span><span><b class="big">'+c.focus+'%</b> &nbsp;'+delta(c.focus,c.focus_prev,0)+'</span></div>'+bars
       +'<div class="flag">🌀 Ловушка занятости: '+c.avoidance_days+' дн. → '+esc(c.avoidance_where)+'</div><div class="coach">🧠 '+esc(c.coach)+'</div></div>';
 
     H+='<div class="card"><h2>🌡️ Состояние</h2>'

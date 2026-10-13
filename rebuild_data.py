@@ -33,8 +33,12 @@ SPHERE_EMOJI = {"Работа": "💼", "Своё дело": "🚀", "Автор
 # алиасы на случай расхождений в названии сферы внутри дневных файлов
 SPHERE_ALIAS = {"Здоровье и тело": "Здоровье"}
 
-CORE_4 = ["Своё дело", "Отношения", "Состояние", "Авторство"]
+CORE_4 = ["Своё дело", "Отношения", "Состояние", "Авторство"]  # ядро до 2026-W41 включительно
 CORE_EMOJI = {"Своё дело": "🚀", "Отношения": "❤️", "Состояние": "🌿", "Авторство": "✍️"}
+# с 2026-10-13 (неделя 2026-W42) ядро — 5 направлений, порядок фиксирован
+CORE_5 = ["Своё дело", "Отношения", "Авторство", "Наука", "Состояние"]
+CORE5_EMOJI = {"Своё дело": "🚀", "Отношения": "❤️", "Авторство": "✍️", "Наука": "🎓", "Состояние": "🌱"}
+CORE5_FROM_WEEK = "2026-W42"
 
 MONTHS_RU = ["", "января", "февраля", "марта", "апреля", "мая", "июня",
              "июля", "августа", "сентября", "октября", "ноября", "декабря"]
@@ -139,6 +143,21 @@ def build_week(days: list[dict], prev_focus, prev_mood, prev_energy) -> dict:
 
     focus_pct = round(total_core_touch_est / total * 100) if total else 0
 
+    # новое ядро из 5 направлений: считаем по полю фокус_по_направлениям
+    # (дела, засчитанные в направление); pct — доля от всех дел недели
+    directions5 = None
+    if iso_week_id(monday) >= CORE5_FROM_WEEK:
+        items5 = {k: [] for k in CORE_5}
+        for d in days:
+            fpn = d.get("фокус_по_направлениям") or {}
+            for k in CORE_5:
+                items5[k].extend((fpn.get(k) or {}).get("дела") or [])
+        directions5 = [{"name": k, "emoji": CORE5_EMOJI[k], "score": len(items5[k]),
+                        "pct": round(len(items5[k]) / total * 100) if total else 0,
+                        "items": items5[k]} for k in CORE_5]
+        core_touch = sum(x["score"] for x in directions5)
+        focus_pct = round(core_touch / total * 100) if total else 0
+
     mood_avg = round(sum(mood_curve) / len(mood_curve), 1)
     energy_avg = round(sum(energy_curve) / len(energy_curve), 1)
 
@@ -162,6 +181,7 @@ def build_week(days: list[dict], prev_focus, prev_mood, prev_energy) -> dict:
             "spheres": spheres,
             "other": other,
             "focus": focus_pct,
+            "directions": directions5,
             "focus_prev": prev_focus if prev_focus is not None else focus_pct,
             "avoidance_days": avoidance_days,
             "avoidance_where": "; ".join(dict.fromkeys(avoidance_where)) if avoidance_where else "",
