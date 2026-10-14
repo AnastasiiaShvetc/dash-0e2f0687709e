@@ -101,7 +101,7 @@
   <button class="refresh" id="refresh">🔄 Обновить данные</button>
   <div id="app"></div>
 <script>
-  var SPHERE_COLORS={"Работа":"#7fb3f0","Своё дело":"#b9a3e3","Авторство":"#f4a6c0","Отдых/заземление":"#6fd6c8","Отношения":"#f6a6a6","Здоровье":"#a9e5a0","Яркость":"#ffd98a","Саморазвитие":"#cbb8f4"};
+  var SPHERE_COLORS={"Работа":"#7fb3f0","Своё дело":"#b9a3e3","Авторство":"#f4a6c0","Отдых/заземление":"#6fd6c8","Отношения":"#f6a6a6","Здоровье":"#a9e5a0","Яркость":"#ffd98a","Саморазвитие":"#cbb8f4","Наука":"#f2b880"};
   var weeks=[],idx=0;
   function esc(s){return (s==null?'':String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;');}
   function delta(cur,prev,dp){var d=cur-prev;if(Math.abs(d)<1e-9)return '<span class="muted">без изменений</span>';var up=d>0;return '<span class="'+(up?'delta-up':'delta-down')+'">'+(up?'↑ +':'↓ ')+(dp!=null?Math.abs(d).toFixed(dp):Math.abs(d))+'</span>';}

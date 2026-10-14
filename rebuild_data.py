@@ -39,6 +39,8 @@ CORE_EMOJI = {"Своё дело": "🚀", "Отношения": "❤️", "Со
 CORE_5 = ["Своё дело", "Отношения", "Авторство", "Наука", "Состояние"]
 CORE5_EMOJI = {"Своё дело": "🚀", "Отношения": "❤️", "Авторство": "✍️", "Наука": "🎓", "Состояние": "🌱"}
 CORE5_FROM_WEEK = "2026-W42"
+SPHERES_9 = SPHERES_8 + ["Наука"]
+SPHERE_EMOJI["Наука"] = "🎓"
 
 MONTHS_RU = ["", "января", "февраля", "марта", "апреля", "мая", "июня",
              "июля", "августа", "сентября", "октября", "ноября", "декабря"]
@@ -74,6 +76,8 @@ def build_week(days: list[dict], prev_focus, prev_mood, prev_energy) -> dict:
     days = sorted(days, key=lambda d: d["дата"])
     monday = days[0]["дата"] - timedelta(days=days[0]["дата"].weekday())
 
+    # с 2026-W42 Наука — 9-я сфера (решение Насти 2026-10-14), до этого — подтема «Всего остального»
+    spheres_list = SPHERES_9 if iso_week_id(monday) >= CORE5_FROM_WEEK else SPHERES_8
     sphere_counts = defaultdict(int)
     other_counts = defaultdict(int)
     core_scores = defaultdict(int)
@@ -92,13 +96,16 @@ def build_week(days: list[dict], prev_focus, prev_mood, prev_energy) -> dict:
         vsyo = d.get("всё_остальное") or []
         for item in pobedy:
             sph = normalize_sphere(item["сфера"])
-            if sph in SPHERES_8:
+            if sph in spheres_list:
                 sphere_counts[sph] += 1
             else:
                 other_counts[sph] += 1
             total += 1
         for item in vsyo:
-            other_counts[item["подтема"]] += 1
+            if item["подтема"] in spheres_list:
+                sphere_counts[item["подтема"]] += 1
+            else:
+                other_counts[item["подтема"]] += 1
             total += 1
 
         if d.get("ловушка_занятости") == "да":
@@ -138,7 +145,7 @@ def build_week(days: list[dict], prev_focus, prev_mood, prev_energy) -> dict:
             total_core_touch_est += round(pct / 100 * n)
 
     spheres = [{"name": s, "emoji": SPHERE_EMOJI[s], "count": sphere_counts.get(s, 0)}
-               for s in SPHERES_8]
+               for s in spheres_list]
     other = [{"name": k, "count": v} for k, v in sorted(other_counts.items(), key=lambda kv: -kv[1])]
 
     focus_pct = round(total_core_touch_est / total * 100) if total else 0
