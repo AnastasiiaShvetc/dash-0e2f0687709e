@@ -162,8 +162,21 @@ def build_week(days: list[dict], prev_focus, prev_mood, prev_energy) -> dict:
         directions5 = [{"name": k, "emoji": CORE5_EMOJI[k], "score": len(items5[k]),
                         "pct": round(len(items5[k]) / total * 100) if total else 0,
                         "items": items5[k]} for k in CORE_5]
+        # прокрастинация снижает процент (правило Насти 2026-10-25): в такой день
+        # знаменатель берём из уже сниженного фокус_на_цель, а не из числа дел
+        denom = 0.0
+        for d in days:
+            n = len(d.get("победы") or []) + len(d.get("всё_остальное") or [])
+            fpn = d.get("фокус_по_направлениям") or {}
+            core_n = sum(len((fpn.get(k) or {}).get("дела") or []) for k in CORE_5)
+            pct = d.get("фокус_на_цель") or 0
+            if d.get("прокрастинация") and core_n and pct:
+                n = max(n, core_n * 100 / pct)
+            denom += n
+        for x in directions5:
+            x["pct"] = round(x["score"] / denom * 100) if denom else 0
         core_touch = sum(x["score"] for x in directions5)
-        focus_pct = round(core_touch / total * 100) if total else 0
+        focus_pct = round(core_touch / denom * 100) if denom else 0
 
     mood_avg = round(sum(mood_curve) / len(mood_curve), 1)
     energy_avg = round(sum(energy_curve) / len(energy_curve), 1)
